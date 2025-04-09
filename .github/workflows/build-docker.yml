@@ -55,7 +55,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git tag ${{ env.SHORT_SHA }}
-          git push origin ${{ env.SHORT_SHA }}
-          gh release create ${{ env.SHORT_SHA }} --generate-notes
+          git tag ${{ env.SHORT_SHA }} || true 
+          git push origin ${{ env.SHORT_SHA }} || true
+          gh release create ${{ env.SHORT_SHA }} --generate-notes || true
           
