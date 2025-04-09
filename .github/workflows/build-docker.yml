@@ -57,4 +57,5 @@ jobs:
           git config --local user.name "GitHub Action"
           git tag ${{ env.SHORT_SHA }}
           git push origin ${{ env.SHORT_SHA }}
+          gh release create ${{ env.SHORT_SHA }} --generate-notes
           
