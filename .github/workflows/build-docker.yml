@@ -15,11 +15,15 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+      
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: ericc-ch/copilot-api
           ref: master
+          path: copilot-api
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -38,7 +42,7 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./copilot-api
           push: true
           tags: ghcr.io/kreatoo/copilot-api-docker:${{ env.SHORT_SHA }}
           cache-from: type=gha
@@ -47,9 +51,6 @@ jobs:
 
       - name: Create and push tag
         run: |
-          cd /tmp
-          git clone https://github.com/kreatoo/copilot-api-docker
-          cd copilot-api-docker
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git tag ${{ env.SHORT_SHA }}
