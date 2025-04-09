@@ -10,6 +10,7 @@ on:
 
 permissions:
   packages: write
+  contents: write
 
 jobs:
   build-and-push:
@@ -37,6 +38,7 @@ jobs:
 
       - name: Extract short SHA
         id: sha
+        working-directory: ./copilot-api
         run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build and Push
