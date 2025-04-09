@@ -47,6 +47,9 @@ jobs:
 
       - name: Create and push tag
         run: |
+          cd /tmp
+          git clone https://github.com/kreatoo/copilot-api-docker
+          cd copilot-api-docker
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git tag ${{ env.SHORT_SHA }}
