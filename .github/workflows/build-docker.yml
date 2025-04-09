@@ -43,6 +43,4 @@ jobs:
           tags: ghcr.io/kreatoo/copilot-api-docker:${{ env.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platforms:
-            - linux/arm64
-            - linux/amd64
+          platforms: linux/arm64,linux/amd64
