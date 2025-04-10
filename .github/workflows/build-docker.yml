@@ -19,11 +19,17 @@ jobs:
       - name: Checkout current repository
         uses: actions/checkout@v4
       
+      - name: Get latest release tag
+        id: latest_release
+        run: |
+          LATEST_TAG=$(curl -s https://api.github.com/repos/ericc-ch/copilot-api/releases/latest | jq -r .tag_name)
+          echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
+      
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: ericc-ch/copilot-api
-          ref: master
+          ref: ${{ env.LATEST_TAG }}
           path: copilot-api
 
       - name: Set up Docker Buildx
@@ -36,17 +42,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract short SHA
-        id: sha
-        working-directory: ./copilot-api
-        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
       - name: Build and Push
         uses: docker/build-push-action@v6
         with:
           context: ./copilot-api
           push: true
-          tags: ghcr.io/kreatoo/copilot-api-docker:${{ env.SHORT_SHA }}
+          tags: ghcr.io/kreatoo/copilot-api-docker:${{ env.LATEST_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/arm64,linux/amd64
@@ -57,7 +58,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git tag ${{ env.SHORT_SHA }} || true 
-          git push origin ${{ env.SHORT_SHA }} || true
-          gh release create ${{ env.SHORT_SHA }} --generate-notes || true
-          
+          git tag ${{ env.LATEST_TAG }} || true 
+          git push origin ${{ env.LATEST_TAG }} || true
+          gh release create ${{ env.LATEST_TAG }} --generate-notes || true
