@@ -32,6 +32,10 @@ jobs:
           ref: ${{ env.LATEST_TAG }}
           path: copilot-api
 
+      - name: Use hack
+        run: |
+          sed -i s/--frozen-lockfile//g copilot-api/Dockerfile
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
