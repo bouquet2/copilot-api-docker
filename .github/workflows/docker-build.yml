@@ -21,6 +21,8 @@ jobs:
       contents: read
       packages: write
     runs-on: ${{ matrix.runs-on }}
+    outputs:
+      latest_tag: ${{ steps.latest_tag.outputs.tag }}
     strategy:
       fail-fast: false
       matrix:
@@ -36,8 +38,9 @@ jobs:
       - name: Get latest tag
         id: latest_tag
         run: |
-          LATEST_TAG=$(curl -s https://api.github.com/repos/${{ env.USERNAME }}/${{ env.REPO }}/tags | jq -r '.[0].name')
-          echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
+          TAG=$(curl -s https://api.github.com/repos/${{ env.USERNAME }}/${{ env.REPO }}/tags | jq -r '.[0].name')
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "LATEST_TAG=${TAG}" >> $GITHUB_ENV
      
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -103,6 +106,8 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build
+    env:
+      LATEST_TAG: ${{ needs.build.outputs.latest_tag }}
     steps:
       - name: Download digests
         uses: actions/download-artifact@v4
@@ -141,10 +146,12 @@ jobs:
           docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:latest
 
   create-release:
-    needs: merge
+    needs: [build, merge]
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      LATEST_TAG: ${{ needs.build.outputs.latest_tag }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
